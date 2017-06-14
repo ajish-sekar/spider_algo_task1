@@ -9,12 +9,95 @@
 
 using namespace std;
 
+void computeLPSArray(string pat, int M, int lps[])
+{
+    
+    int len = 0;
+ 
+    lps[0] = 0;
+ 
+  
+    int i = 1;
+    while (i < M)
+    {
+        if (pat[i] == pat[len])
+        {
+            len++;
+            lps[i] = len;
+            i++;
+        }
+        else 
+        {
+           
+            if (len != 0)
+            {
+                len = lps[len-1];
+ 
+                
+            }
+            else 
+            {
+                lps[i] = 0;
+                i++;
+            }
+        }
+    }
+}
+
+void KMP(string pat, string txt, int pgno, int lno, int &flag, ofstream &file2)
+{
+    int M = pat.length();
+    int N = txt.length();
+ 
+   
+    
+    int lps[M];
+ 
+   
+    computeLPSArray(pat, M, lps);
+ 
+    int i = 0; 
+    int j  = 0;  
+    while (i < N)
+    {
+        if (pat[j] == txt[i])
+        {
+            j++;
+            i++;
+        }
+ 
+        if (j == M)
+        {
+            
+            j = lps[j-1];
+            
+            if(!(isalpha(txt[i])||isalpha(txt[i-M-1]))){
+                               flag =1;
+                               file2<<"Page "<<pgno<<", Line "<<lno<<"\n";
+                               }
+                               
+            
+        }
+ 
+        
+        else if (i < N && pat[j] != txt[i])
+        {
+           
+            if (j != 0)
+                j = lps[j-1];
+            else
+                i = i+1;
+        }
+    }
+}
+
 int main()
 {
     char a[20] = "queries.txt";
     ifstream file(a);
     
     ofstream file2("output.txt");
+    
     
     int i;
     
@@ -40,26 +123,14 @@ int main()
                          while(!file3.eof()){
                          
                          getline(file3,line);
-                         vector<size_t> positions; 
-    
                          
-                        
-                         size_t pos = line.find(word, 0);
-                         while(pos != string::npos)
-                         {
-                                   if(!(isalpha(line[pos-1])||isalpha(line[pos+word.length()])))
-                                   {    
-                                   flag =1;
-                                   file2<<"Page "<<i<<", Line "<<j<<"\n";
-                                   positions.push_back(pos);
-                                   }
-                                   pos = line.find(word,pos+1);
-                         }
+                         KMP(word,line,i,j,flag,file2);
                          
                          j++;
                                  
                          }
                          file3.close();
+                        
                          
                          }
                          if (flag==0)
